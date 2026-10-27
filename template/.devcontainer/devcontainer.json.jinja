@@ -1,0 +1,21 @@
+{
+  "name": "{{ project_name }} (Claude Jail)",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "jail",
+  "workspaceFolder": "/workspace",
+  "updateRemoteUserUID": false,
+  "remoteUser": "vscode",
+  "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "/home/vscode/.claude",
+    "HTTPS_PROXY": "http://proxy:3128",
+    "HTTP_PROXY": "http://proxy:3128",
+    "NO_PROXY": "localhost,127.0.0.1",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+  },
+  "postCreateCommand": "curl -fsSL https://claude.ai/install.sh | bash",
+  "customizations": {
+    "vscode": {
+      "extensions": ["anthropic.claude-code"]
+    }
+  }
+}

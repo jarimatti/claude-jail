@@ -15,3 +15,9 @@ update.code.visualstudio.com
 marketplace.visualstudio.com
 .vscode-cdn.net
 vscode.blob.core.windows.net
+{%- if extra_domains %}
+# Project-specific
+{%- for d in extra_domains %}
+{{ d }}
+{%- endfor %}
+{% endif -%}

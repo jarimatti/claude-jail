@@ -1,0 +1,12 @@
+_subdirectory: template
+_min_copier_version: "9.0.0"
+
+project_name:
+  type: str
+  help: Name shown for the devcontainer
+  default: "{{ _copier_conf.dst_path.name }}"
+
+extra_domains:
+  type: yaml
+  help: Extra hosts the jail may reach over HTTPS (a leading dot matches subdomains)
+  default: []

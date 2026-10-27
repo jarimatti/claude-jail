@@ -1,0 +1,30 @@
+# The jail is on an --internal network with no route out; the only way out is the squid proxy,
+# which is attached to both networks and tunnels HTTPS to hosts in proxy/allowed-domains.txt.
+services:
+  proxy:
+    image: docker.io/ubuntu/squid:latest
+    restart: unless-stopped
+    volumes:
+      - ./proxy/squid.conf:/etc/squid/squid.conf:ro
+      - ./proxy/allowed-domains.txt:/etc/squid/allowed-domains.txt:ro
+    networks: [jail, egress]
+
+  jail:
+    image: mcr.microsoft.com/devcontainers/base:trixie
+    user: vscode
+    command: sleep infinity
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges"]
+    depends_on: [proxy]
+    volumes:
+      - ..:/workspace
+      - claude-config:/home/vscode/.claude:U
+    networks: [jail]
+
+networks:
+  jail:
+    internal: true
+  egress:
+
+volumes:
+  claude-config:
