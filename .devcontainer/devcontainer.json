@@ -1,0 +1,30 @@
+{
+  "name": "Claude Jail (Podman)",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bookworm",
+  "initializeCommand": "bash .devcontainer/proxy/up.sh",
+  "runArgs": [
+    "--network=claude-jail-net",
+    "--cap-drop=ALL",
+    "--security-opt=no-new-privileges"
+  ],
+  "updateRemoteUserUID": false,
+  "remoteUser": "node",
+  "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "/home/node/.claude",
+    "HTTPS_PROXY": "http://claude-jail-proxy:3128",
+    "HTTP_PROXY": "http://claude-jail-proxy:3128",
+    "NO_PROXY": "localhost,127.0.0.1",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+  },
+  "mounts": [
+    "source=claude-jail-config-${devcontainerId},target=/home/node/.claude,type=volume"
+  ],
+  "workspaceMount": "source=${localWorkspaceFolder}/workspace,target=/workspace,type=bind",
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "npm install -g @anthropic-ai/claude-code@latest",
+  "customizations": {
+    "vscode": {
+      "extensions": ["anthropic.claude-code"]
+    }
+  }
+}

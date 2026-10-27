@@ -1,0 +1,17 @@
+# Hosts the jail may reach (HTTPS/443 only). A leading dot matches all subdomains.
+# Claude Code: API, OAuth login/token exchange
+.anthropic.com
+.claude.com
+.claude.ai
+# Git and packages
+github.com
+api.github.com
+codeload.github.com
+objects.githubusercontent.com
+raw.githubusercontent.com
+registry.npmjs.org
+# VS Code server/extension installs (only needed for the VS Code flow)
+update.code.visualstudio.com
+marketplace.visualstudio.com
+.vscode-cdn.net
+vscode.blob.core.windows.net
