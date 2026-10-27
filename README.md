@@ -11,13 +11,13 @@ Generate the jail into a project (needs [Copier](https://copier.readthedocs.io/)
 
 The template also adds a `mise.toml` (Node.js for `npx`, and [`just`](https://just.systems/)) and a `justfile` with the commands below. An existing `mise.toml` is never overwritten, so add your own tools freely. The `justfile` is kept up to date by `copier update`, which merges template changes into your edits.
 
-The compose project is named `claudejail<project_name>` (letters and digits only) in `.devcontainer/docker-compose.yml`, so every project gets its own proxy and networks and VS Code, the devcontainers CLI and `just` all address the same containers. `project_name` defaults to the directory name (`project` if you pass `.`); change it if two projects would share a name.
+The compose project name keeps each project's proxy, networks and login volume apart. `just` names it `claudejail<directory name>` (letters and digits only, from the directory the `justfile` is in). The compose file carries `claudejail<project_name>` for VS Code and the devcontainers CLI. These agree when the directory name matches `project_name`, which is the default; if you rename the directory or change the answer, start and stop the stack with the same tool. `project_name` defaults to the directory name (`project` if you pass `.`).
 
 Questions: `project_name` and `extra_domains` (additional HTTPS hosts for the allowlist, e.g. `.pypi.org`). Answers are stored in `.copier-answers.yml`; commit it, because `copier update` reads it to re-render with your answers and merge template changes. The template lives in `template/`.
 
 ## Quick start
 
-Requires rootless Podman, `podman-compose` (`podman compose` is a wrapper around it, so the `justfile` could use either) and Node.js and `just` (on the host; `mise install` provides them from the `mise.toml` the template adds). From the generated project:
+Requires rootless Podman, `podman-compose` (`podman compose` is a wrapper around it), plus Node.js and `just` (on the host; `mise install` provides them from the `mise.toml` the template adds). From the generated project:
 
     just up        # start the proxy and the jail
     just claude    # run Claude Code in the jail; log in on first run
