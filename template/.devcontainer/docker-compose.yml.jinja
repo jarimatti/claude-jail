@@ -33,6 +33,9 @@ services:
       - .:/workspace/.devcontainer:ro
       # Hooks run on the host at the next git command, so they are read-only too (needs a git repo)
       - ../.git/hooks:/workspace/.git/hooks:ro
+      # `just` and mise run these on the host, so the jail must not be able to rewrite them
+      - ../justfile:/workspace/justfile:ro
+      - ../mise.toml:/workspace/mise.toml:ro
       - claude-config:/home/vscode/.claude:U
     networks: [jail]
 
