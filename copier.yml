@@ -1,10 +1,10 @@
 _subdirectory: template
 _min_copier_version: "9.0.0"
 
-# Projects add their own tools to mise.toml and recipes to the justfile; don't clobber it on update
+# Projects add their own tools to mise.toml; don't clobber it on update. The justfile is
+# template-owned, so `copier update` keeps merging fixes into it.
 _skip_if_exists:
   - mise.toml
-  - justfile
 
 project_name:
   type: str

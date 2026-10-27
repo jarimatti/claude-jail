@@ -9,7 +9,7 @@ Generate the jail into a project (needs [Copier](https://copier.readthedocs.io/)
     uvx copier copy gh:jarimatti/claude-jail path/to/project     # or a local path to this repo
     uvx copier update                                         # later, inside the project, to pull template changes
 
-The template also adds a `mise.toml` (Node.js for `npx`, and [`just`](https://just.systems/)) and a `justfile` with the commands below. Both are only created if the project doesn't have them; existing ones are never overwritten.
+The template also adds a `mise.toml` (Node.js for `npx`, and [`just`](https://just.systems/)) and a `justfile` with the commands below. An existing `mise.toml` is never overwritten, so add your own tools freely. The `justfile` is kept up to date by `copier update`, which merges template changes into your edits.
 
 The compose project is named `claudejail<project_name>` (letters and digits only) in `.devcontainer/docker-compose.yml`, so every project gets its own proxy and networks and VS Code, the devcontainers CLI and `just` all address the same containers. `project_name` defaults to the directory name (`project` if you pass `.`); change it if two projects would share a name.
 
