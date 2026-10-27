@@ -1,3 +1,7 @@
+# Explicit project name (letters and digits only, derived from project_name) so VS Code, the devcontainers
+# CLI and `podman compose` (see justfile) all address the same containers
+name: claudejail{{ project_name | lower | replace(' ', '') | replace('.', '') | replace('-', '') | replace('_', '') }}
+
 # The jail is on an --internal network with no route out; the only way out is the squid proxy,
 # which is attached to both networks and tunnels HTTPS to hosts in proxy/allowed-domains.txt.
 # userns_mode can't be combined with podman-compose's default shared pod

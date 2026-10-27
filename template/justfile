@@ -1,0 +1,37 @@
+# Claude Jail helpers. `just` with no arguments lists them.
+dc := "npx @devcontainers/cli"
+podman := "--docker-path podman --docker-compose-path podman-compose --workspace-folder ."
+# Absolute path: podman-compose fails to find a relative -f file
+compose := "podman compose -f " + justfile_directory() + "/.devcontainer/docker-compose.yml"
+
+[private]
+default:
+    @just --list
+
+# Start the proxy and the jail (first run pulls images and installs Claude Code)
+up:
+    {{dc}} up {{podman}}
+
+# Open a shell in the jail
+shell:
+    {{dc}} exec {{podman}} bash
+
+# Run Claude Code in the jail (log in on first run)
+claude *args:
+    {{dc}} exec {{podman}} claude {{args}}
+
+# Stop the proxy and the jail; the login volume is kept
+down:
+    {{compose}} down
+
+# Stop and delete everything, including the login volume
+destroy:
+    {{compose}} down -v
+
+# Restart the proxy after editing .devcontainer/proxy/allowed-domains.txt
+restart-proxy:
+    {{compose}} restart proxy
+
+# Show proxy logs (denied requests appear here)
+logs:
+    {{compose}} logs proxy

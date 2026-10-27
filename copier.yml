@@ -1,14 +1,19 @@
 _subdirectory: template
 _min_copier_version: "9.0.0"
 
-# Projects add their own tools to mise.toml; don't clobber it on update
+# Projects add their own tools to mise.toml and recipes to the justfile; don't clobber it on update
 _skip_if_exists:
   - mise.toml
+  - justfile
 
 project_name:
   type: str
-  help: Name shown for the devcontainer
-  default: "{{ _copier_conf.dst_path.name }}"
+  help: Name shown for the devcontainer; also names the compose project, so keep it unique per project
+  default: "{{ _copier_conf.dst_path.name or 'project' }}"
+  validator: >-
+    {% if not (project_name | regex_search('^[A-Za-z0-9][A-Za-z0-9 ._-]*$')) %}
+    Use letters, digits, spaces, dots, dashes and underscores (it names the compose project)
+    {% endif %}
 
 extra_domains:
   type: yaml

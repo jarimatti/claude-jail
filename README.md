@@ -9,19 +9,22 @@ Generate the jail into a project (needs [Copier](https://copier.readthedocs.io/)
     uvx copier copy gh:jarimatti/claude-jail path/to/project     # or a local path to this repo
     uvx copier update                                         # later, inside the project, to pull template changes
 
-The template also adds a `mise.toml` (Node.js, for `npx`) if the project has none; an existing one is never overwritten.
+The template also adds a `mise.toml` (Node.js for `npx`, and [`just`](https://just.systems/)) and a `justfile` with the commands below. Both are only created if the project doesn't have them; existing ones are never overwritten.
+
+The compose project is named `claudejail<project_name>` (letters and digits only) in `.devcontainer/docker-compose.yml`, so every project gets its own proxy and networks and VS Code, the devcontainers CLI and `just` all address the same containers. `project_name` defaults to the directory name (`project` if you pass `.`); change it if two projects would share a name.
 
 Questions: `project_name` and `extra_domains` (additional HTTPS hosts for the allowlist, e.g. `.pypi.org`). Answers are stored in `.copier-answers.yml`; commit it, because `copier update` reads it to re-render with your answers and merge template changes. The template lives in `template/`.
 
 ## Quick start
 
-Requires rootless Podman, `podman-compose` (`podman compose` is a wrapper around it, so the commands below are interchangeable) and Node.js (on the host, for `npx`; `mise install` provides it from the `mise.toml` the template adds). From the generated project:
+Requires rootless Podman, `podman-compose` (`podman compose` is a wrapper around it, so the `justfile` could use either) and Node.js and `just` (on the host; `mise install` provides them from the `mise.toml` the template adds). From the generated project:
 
-    npx @devcontainers/cli up   --docker-path podman --docker-compose-path podman-compose --workspace-folder .
-    npx @devcontainers/cli exec --docker-path podman --docker-compose-path podman-compose --workspace-folder . bash
-    claude                      # inside the jail; log in on first run
+    just up        # start the proxy and the jail
+    just claude    # run Claude Code in the jail; log in on first run
+    just shell     # or open a shell instead
+    just down      # stop (just destroy also deletes the login volume and so logs you out)
 
-The first `up` pulls a large image and installs Claude Code, so expect a few minutes. Your project is mounted at `/workspace`. To stop: `podman compose -f .devcontainer/docker-compose.yml down` (add `-v` to also delete the login volume and so log out). Re-running `up` starts it again.
+`just` alone lists all recipes, including `restart-proxy` and `logs`. They wrap `npx @devcontainers/cli` and `podman compose`; see the `justfile`. The first `up` pulls a large image and installs Claude Code, so expect a few minutes. Your project is mounted at `/workspace`. Re-running `up` starts the jail again.
 
 ## How it works
 
@@ -36,13 +39,13 @@ Both containers are services of one compose project (`.devcontainer/docker-compo
 
 ## Use
 
-CLI: see Quick start. `up` starts the proxy and the jail via compose.
+CLI: see Quick start. `just up` starts the proxy and the jail via compose.
 
-VS Code: set `"dev.containers.dockerPath": "podman"` in user settings (from a WSL window it may need to go in the Remote [WSL] scope), then "Reopen in Container".
+VS Code: set `"dev.containers.dockerPath": "podman"` and `"dev.containers.dockerComposePath": "podman-compose"` in user settings (from a WSL window it may need to go in the Remote [WSL] scope), then "Reopen in Container".
 
 ## Changing the allowlist
 
-Edit `.devcontainer/proxy/allowed-domains.txt` (or change `extra_domains` with `copier update`), then restart the proxy: `podman compose -f .devcontainer/docker-compose.yml restart proxy`. `podman compose -f .devcontainer/docker-compose.yml logs proxy` shows denied requests.
+Edit `.devcontainer/proxy/allowed-domains.txt` (or change `extra_domains` with `copier update`), then restart the proxy with `just restart-proxy`. `just logs` shows denied requests.
 
 ## Notes
 
