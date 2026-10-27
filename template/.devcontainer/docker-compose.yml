@@ -18,6 +18,10 @@ services:
     depends_on: [proxy]
     volumes:
       - ..:/workspace
+      # The proxy config lives here; the jail must not be able to widen its own allowlist
+      - .:/workspace/.devcontainer:ro
+      # Hooks run on the host at the next git command, so they are read-only too (needs a git repo)
+      - ../.git/hooks:/workspace/.git/hooks:ro
       - claude-config:/home/vscode/.claude:U
     networks: [jail]
 

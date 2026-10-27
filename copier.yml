@@ -1,6 +1,10 @@
 _subdirectory: template
 _min_copier_version: "9.0.0"
 
+# Projects add their own tools to mise.toml; don't clobber it on update
+_skip_if_exists:
+  - mise.toml
+
 project_name:
   type: str
   help: Name shown for the devcontainer

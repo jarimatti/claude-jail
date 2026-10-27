@@ -4,16 +4,18 @@ A safer Claude Code setup: a devcontainer for **rootless Podman** whose only way
 
 ## Use as a Copier template
 
-Generate the jail into a project (needs [Copier](https://copier.readthedocs.io/), e.g. via `uvx`):
+Generate the jail into a project (needs [Copier](https://copier.readthedocs.io/), e.g. via `uvx`; `mise install` in this repo provides `uv` and Node.js):
 
     uvx copier copy gh:<you>/claude-jail path/to/project     # or a local path to this repo
     uvx copier update                                         # later, inside the project, to pull template changes
+
+The template also adds a `mise.toml` (Node.js, for `npx`) if the project has none; an existing one is never overwritten.
 
 Questions: `project_name` and `extra_domains` (additional HTTPS hosts for the allowlist, e.g. `.pypi.org`). Answers are stored in `.copier-answers.yml`; commit it so `copier update` works. The template lives in `template/`.
 
 ## Quick start
 
-Requires rootless Podman, `podman compose` and Node.js (on the host, for `npx`). From the generated project:
+Requires rootless Podman, `podman compose` and Node.js (on the host, for `npx`; `mise install` provides it from the `mise.toml` the template adds). From the generated project:
 
     npx @devcontainers/cli up   --docker-path podman --docker-compose-path podman-compose --workspace-folder .
     npx @devcontainers/cli exec --docker-path podman --docker-compose-path podman-compose --workspace-folder . bash
@@ -47,7 +49,7 @@ Edit `.devcontainer/proxy/allowed-domains.txt` (or change `extra_domains` with `
 - Tools must honor `HTTPS_PROXY` (Claude Code, git over https, curl do). `ssh` does not, so use https remotes.
 - `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` is set, which stops telemetry/update checks (and so auto-updates). To update Claude Code, rebuild the container (`postCreateCommand` installs the latest release; the version is not pinned).
 - The first build pulls a large base image; give it a few minutes.
-- The jail can still write to the workspace and read the Claude token; the network is the boundary, not the filesystem.
+- The jail can still write to the workspace and read the Claude token; the network is the boundary, not the filesystem. The one exception is `.devcontainer/`, which is mounted read-only inside the jail so it can't rewrite its own allowlist. Likewise `.git/hooks` is read-only, since hooks would run on the host at the next git command; this means the project must be a git repo (with a plain `.git` directory) or the jail won't start. `.git/config` is still writable (aliases, `core.hooksPath`, `core.fsmonitor` can run commands on the host), so treat the repo as untrusted after a session.
 - Cleanup: `podman compose -f .devcontainer/docker-compose.yml down -v`. Older versions of this repo used a shared host proxy; remove it with `podman rm -f claude-jail-proxy; podman network rm claude-jail-net claude-jail-egress`.
 
 ## Verified
