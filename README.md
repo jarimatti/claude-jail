@@ -54,10 +54,11 @@ Edit `.devcontainer/proxy/allowed-domains.txt` (or change `extra_domains` with `
 
 Rebuilt from scratch from a rendered template with `podman-compose` 1.3.0 and Podman 5.4: the devcontainer builds and starts, the native installer works through the proxy, `claude` runs inside the jail, and the `~/.claude` volume is writable by `vscode`. Isolation checks: allowlisted HTTPS works; other hosts, plain HTTP and direct IP access (bypassing the proxy) fail; the jail has no capabilities and is attached only to the internal network.
 
+The jail maps your host user to `vscode` (`userns_mode: keep-id`, which is why the compose file sets `x-podman: in_pod: false`), so `/workspace` is writable and owned by you. Checked on the full stack: files created in the jail are owned by your host uid, `.devcontainer` and `.git/hooks` are read-only, and the `~/.claude` volume is writable.
+
 ## Not verified
 
 - The login persists across rebuilds.
 - Claude **login** (OAuth) inside the jail. Token exchange should be covered by `.anthropic.com`/`.claude.com`/`.claude.ai`; if it fails, check the proxy logs for denied hosts.
 - The VS Code GUI flow, including extension install through the proxy.
 - Behavior of `git push`/`gh` beyond reaching GitHub.
-- The read-only `.devcontainer` and `.git/hooks` overlays under the full compose stack (only checked with a plain `podman run`).

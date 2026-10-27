@@ -1,5 +1,9 @@
 # The jail is on an --internal network with no route out; the only way out is the squid proxy,
 # which is attached to both networks and tunnels HTTPS to hosts in proxy/allowed-domains.txt.
+# userns_mode can't be combined with podman-compose's default shared pod
+x-podman:
+  in_pod: false
+
 services:
   proxy:
     image: docker.io/ubuntu/squid:latest
@@ -12,6 +16,9 @@ services:
   jail:
     image: mcr.microsoft.com/devcontainers/base:trixie
     user: vscode
+    # Rootless Podman maps the host user to root in the container; map it to vscode (uid 1000) instead
+    # so /workspace is writable and not root-owned
+    userns_mode: "keep-id:uid=1000,gid=1000"
     command: sleep infinity
     cap_drop: [ALL]
     security_opt: ["no-new-privileges"]
