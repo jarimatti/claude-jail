@@ -43,6 +43,12 @@ CLI: see Quick start. `just up` starts the proxy and the jail via compose.
 
 VS Code: set `"dev.containers.dockerPath": "podman"` and `"dev.containers.dockerComposePath": "podman-compose"` in user settings (from a WSL window it may need to go in the Remote [WSL] scope), then "Reopen in Container".
 
+## Several agents in parallel
+
+Use one clone per agent, each in its own directory (`git clone repo repo-agent-a`, then `just up` in each). `just` names the compose project after the directory, so every clone gets its own proxy, jail and login volume and they don't interfere. Directory names must differ (only letters and digits count, so `my-app` and `myapp` collide).
+
+Git worktrees are not supported yet: a worktree's `.git` is a file pointing outside the project, so the `.git/hooks` mount fails and git can't find its repository inside the jail. If you start a stack with VS Code instead of `just`, the project is named after `project_name` (the directory name at generation time), so two clones started that way collide unless you change it.
+
 ## Changing the allowlist
 
 Edit `.devcontainer/proxy/allowed-domains.txt` (or change `extra_domains` with `copier update`), then restart the proxy with `just restart-proxy`. `just logs` shows denied requests.

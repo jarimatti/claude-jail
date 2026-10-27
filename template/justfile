@@ -1,8 +1,15 @@
 # Claude Jail helpers. `just` with no arguments lists them.
+# Name the compose project after the directory (overrides `name:` in the compose file), so clones of
+# the same repo in different directories get separate containers. Letters and digits only, because the
+# devcontainers CLI strips everything else. With the default project_name this equals the compose `name:`.
+project := "claudejail" + replace_regex(lowercase(file_name(justfile_directory())), "[^a-z0-9]", "")
+export COMPOSE_PROJECT_NAME := project
+
 dc := "npx @devcontainers/cli"
 podman := "--docker-path podman --docker-compose-path podman-compose --workspace-folder ."
 # Absolute path: podman-compose fails to find a relative -f file
-compose := "podman compose -f " + justfile_directory() + "/.devcontainer/docker-compose.yml"
+# -p is needed because podman-compose prefers `name:` from the file over COMPOSE_PROJECT_NAME
+compose := "podman compose -p " + project + " -f " + justfile_directory() + "/.devcontainer/docker-compose.yml"
 
 [private]
 default:
