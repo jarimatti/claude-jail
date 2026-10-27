@@ -15,8 +15,16 @@ compose := "podman compose -p " + project + " -f " + justfile_directory() + "/.d
 default:
     @just --list
 
+# The jail bind-mounts these (read-only), and Podman fails obscurely when one is missing
+[private]
+check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    [ -d .git/hooks ] || { echo "error: needs a git repository with a plain .git directory (git init; git worktrees are not supported)" >&2; exit 1; }
+    [ -f mise.toml ] || { echo "error: mise.toml is missing; the jail mounts it read-only (restore it, even if empty)" >&2; exit 1; }
+
 # Start the proxy and the jail (first run pulls images and installs Claude Code)
-up:
+up: check
     {{dc}} up {{podman}}
 
 # Open a shell in the jail
