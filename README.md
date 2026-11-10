@@ -4,7 +4,7 @@ A safer Claude Code and Codex CLI setup: a devcontainer for **rootless Podman** 
 
 ## Use as a Copier template
 
-Generate the jail into a project (needs [Copier](https://copier.readthedocs.io/), e.g. via `uvx`; `mise install` in this repo provides `uv` and Node.js):
+Generate the jail into a project (needs [Copier](https://copier.readthedocs.io/), e.g. via `uvx`; `mise install` in this repo provides `uv`, Node.js and `just`):
 
     uvx copier copy gh:jarimatti/claude-jail path/to/project     # or a local path to this repo
     uvx copier update                                         # later, inside the project, to pull template changes
@@ -42,8 +42,8 @@ Device code login must be enabled in your ChatGPT security settings or workspace
 permissions. See the [official authentication documentation](https://learn.chatgpt.com/docs/auth).
 
 Codex is installed using the [official standalone installer](https://learn.chatgpt.com/docs/codex/cli),
-pinned to **0.167.0**, without Node.js in the jail. To upgrade, change the release in
-`.devcontainer/install.sh` from the host and recreate the devcontainer. Startup update
+which installs the latest release without Node.js in the jail. To upgrade, recreate
+the devcontainer so the installer runs again. Startup update
 checks are disabled in the initial Codex configuration. Existing configuration is preserved.
 
 A separate `codex-config` volume stores `/home/vscode/.codex`, including configuration,
@@ -57,8 +57,9 @@ exact OpenAI authentication, inference and download hosts. Additional plugins, M
 servers or other integrations may require extra domains. Keep Codex's normal sandbox
 settings initially.
 
-Codex support currently covers the CLI only. The existing Claude VS Code extension
-is installed only when Claude is selected.
+The devcontainer installs the selected agents' VS Code extensions: `anthropic.claude-code`
+for Claude and the [official Codex extension](https://learn.chatgpt.com/docs/codex/ide),
+`openai.chatgpt`, for Codex. The VS Code GUI flow remains unverified.
 
 ## How it works
 
@@ -100,7 +101,7 @@ Rebuilt from scratch from a rendered template with `podman-compose` 1.3.0 and Po
 The jail maps your host user to `vscode` (`userns_mode: keep-id`, which is why the compose file sets `x-podman: in_pod: false`), so `/workspace` is writable and owned by you. Checked on the full stack: files created in the jail are owned by your host uid, `.devcontainer` and `.git/hooks` are read-only, and the `~/.claude` volume is writable.
 
 Codex credential persistence checked with `just down` followed by `just up`: the jail
-received a new container ID, reused its `codex-config` volume, reran the pinned
+received a new container ID, reused its `codex-config` volume, reran the
 installer successfully, and `just codex login status` still reported "Logged in using
 ChatGPT" without signing in again. A subsequent `just codex exec` prompt returned "OK", confirming authenticated
 inference with the preserved login.
@@ -112,6 +113,13 @@ inference with the preserved login.
 
 ## Template checks
 
-With Copier and `just` installed, run `python -m unittest discover -s tests`. This
-renders all three agent selections and checks their generated configuration and
-installer syntax. It does not start containers or authenticate either agent.
+From this repository, run:
+
+    mise install
+    mise run test
+
+Mise provides `uv` and `just`; the test task uses `uv` to supply Python 3.13 and
+Copier in an isolated environment. No separate Python or Copier installation is
+needed. The checks render all three agent selections and check generated
+configuration, installer syntax and CLI argument forwarding. They do not start
+containers or authenticate either agent.

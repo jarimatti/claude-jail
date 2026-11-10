@@ -1,4 +1,4 @@
-"""Render every agent selection with Copier; run with python -m unittest discover -s tests."""
+"""Render every agent selection with Copier; run with mise run test."""
 import json
 import os
 from pathlib import Path
@@ -34,16 +34,19 @@ class TemplateTests(unittest.TestCase):
                     claude = agents in ("claude", "both")
                     codex = agents in ("codex", "both")
                     self.assertEqual("CODEX_HOME" in config["containerEnv"], codex)
+                    self.assertEqual("CLAUDE_CONFIG_DIR" in config["containerEnv"], claude)
+                    self.assertEqual("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC" in config["containerEnv"], claude)
                     self.assertEqual("codex-config:" in compose, codex)
                     self.assertEqual("claude-config:" in compose, claude)
                     self.assertEqual("auth.openai.com" in domains, codex)
                     self.assertEqual(".anthropic.com" in domains, claude)
-                    self.assertEqual("--release 0.167.0" in installer, codex)
+                    self.assertEqual("--release latest" in installer, codex)
                     self.assertEqual("https://claude.ai/install.sh" in installer, claude)
                     self.assertIn("example.com", domains)
                     self.assertEqual(
                         config["customizations"]["vscode"]["extensions"],
-                        ["anthropic.claude-code"] if claude else [],
+                        (["anthropic.claude-code"] if claude else [])
+                        + (["openai.chatgpt"] if codex else []),
                     )
                     self.assertIn("cap_drop: [ALL]", compose)
                     self.assertIn("internal: true", compose)

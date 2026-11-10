@@ -7,16 +7,17 @@
   "remoteUser": "vscode",
   "containerEnv": {
 {% if agents in ["codex", "both"] %}    "CODEX_HOME": "/home/vscode/.codex",
-{% endif %}    "CLAUDE_CONFIG_DIR": "/home/vscode/.claude",
+{% endif %}{% if agents in ["claude", "both"] %}    "CLAUDE_CONFIG_DIR": "/home/vscode/.claude",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+{% endif %}
     "HTTPS_PROXY": "http://proxy:3128",
     "HTTP_PROXY": "http://proxy:3128",
-    "NO_PROXY": "localhost,127.0.0.1",
-    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+    "NO_PROXY": "localhost,127.0.0.1"
   },
   "postCreateCommand": "bash /workspace/.devcontainer/install.sh",
   "customizations": {
     "vscode": {
-      "extensions": [{% if agents in ["claude", "both"] %}"anthropic.claude-code"{% endif %}]
+      "extensions": [{% if agents in ["claude", "both"] %}"anthropic.claude-code"{% endif %}{% if agents == "both" %}, {% endif %}{% if agents in ["codex", "both"] %}"openai.chatgpt"{% endif %}]
     }
   }
 }
