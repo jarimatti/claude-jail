@@ -19,3 +19,12 @@ extra_domains:
   type: yaml
   help: Extra hosts the jail may reach over HTTPS (a leading dot matches subdomains)
   default: []
+
+agents:
+  type: str
+  help: Coding agents to install in the jail
+  default: claude
+  choices:
+    Claude Code: claude
+    Codex CLI: codex
+    Both: both

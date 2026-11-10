@@ -32,8 +32,14 @@ shell:
     {{dc}} exec {{podman}} bash
 
 # Run Claude Code in the jail (log in on first run)
+[positional-arguments]
 claude *args:
-    {{dc}} exec {{podman}} claude {{args}}
+    {{dc}} exec {{podman}} claude "$@"
+
+# Run Codex CLI in the jail (first run: just codex login --device-auth)
+[positional-arguments]
+codex *args:
+    {{dc}} exec {{podman}} codex "$@"
 
 # Stop the proxy and the jail; the login volume is kept
 down:

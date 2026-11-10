@@ -1,3 +1,8 @@
 [tools]
 node = "26"
 uv = "latest"
+just = "latest"
+
+[tasks.test]
+description = "Render and check all agent selections"
+run = "uv run --python 3.13 --with copier python -m unittest discover -s tests"
