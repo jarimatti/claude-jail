@@ -36,7 +36,9 @@ services:
       # `just` and mise run these on the host, so the jail must not be able to rewrite them
       - ../justfile:/workspace/justfile:ro
       - ../mise.toml:/workspace/mise.toml:ro
-      - claude-config:/home/vscode/.claude:U
+{% if agents in ["claude", "both"] %}      - claude-config:/home/vscode/.claude:U
+{% endif %}{% if agents in ["codex", "both"] %}      - codex-config:/home/vscode/.codex:U
+{% endif %}
     networks: [jail]
 
 networks:
@@ -45,4 +47,6 @@ networks:
   egress:
 
 volumes:
-  claude-config:
+{% if agents in ["claude", "both"] %}  claude-config:
+{% endif %}{% if agents in ["codex", "both"] %}  codex-config:
+{% endif %}

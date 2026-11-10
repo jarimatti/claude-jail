@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{% if agents in ["claude", "both"] %}
+curl -fsSL https://claude.ai/install.sh | bash
+{% endif %}
+{% if agents in ["codex", "both"] %}
+# Standalone installer selects the platform and verifies release checksums.
+curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh -s -- --release 0.167.0
+# Seed defaults without overwriting settings preserved in the volume.
+if [ ! -e "$CODEX_HOME/config.toml" ]; then
+    mkdir -p "$CODEX_HOME"
+    cat > "$CODEX_HOME/config.toml" <<'TOML'
+cli_auth_credentials_store = "file"
+check_for_update_on_startup = false
+TOML
+fi
+{% endif %}

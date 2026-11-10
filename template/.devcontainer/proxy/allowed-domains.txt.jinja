@@ -1,8 +1,19 @@
 # Hosts the jail may reach (HTTPS/443 only). A leading dot matches all subdomains.
+{% if agents in ["claude", "both"] %}
 # Claude Code: API, OAuth login/token exchange
 .anthropic.com
 .claude.com
 .claude.ai
+{% endif %}
+{% if agents in ["codex", "both"] %}
+# Codex CLI: login, ChatGPT inference, API inference and standalone releases
+auth.openai.com
+chatgpt.com
+api.openai.com
+releases.openai.com
+# GitHub release asset fallback for the standalone installer
+release-assets.githubusercontent.com
+{% endif %}
 # Git
 github.com
 api.github.com

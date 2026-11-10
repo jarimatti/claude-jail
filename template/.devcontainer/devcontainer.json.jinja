@@ -6,16 +6,17 @@
   "updateRemoteUserUID": false,
   "remoteUser": "vscode",
   "containerEnv": {
-    "CLAUDE_CONFIG_DIR": "/home/vscode/.claude",
+{% if agents in ["codex", "both"] %}    "CODEX_HOME": "/home/vscode/.codex",
+{% endif %}    "CLAUDE_CONFIG_DIR": "/home/vscode/.claude",
     "HTTPS_PROXY": "http://proxy:3128",
     "HTTP_PROXY": "http://proxy:3128",
     "NO_PROXY": "localhost,127.0.0.1",
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
   },
-  "postCreateCommand": "curl -fsSL https://claude.ai/install.sh | bash",
+  "postCreateCommand": "bash /workspace/.devcontainer/install.sh",
   "customizations": {
     "vscode": {
-      "extensions": ["anthropic.claude-code"]
+      "extensions": [{% if agents in ["claude", "both"] %}"anthropic.claude-code"{% endif %}]
     }
   }
 }
